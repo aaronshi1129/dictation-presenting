@@ -1,0 +1,406 @@
+<html><head><base href=".">
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    background: white;
+    padding: 20px;
+  }
+
+  .container {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    max-width: 800px;
+    width: 90%;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    text-align: center;
+  }
+
+  .sentence {
+    font-size: 1.2rem;
+    margin: 20px 0;
+    line-height: 1.6;
+    color: #2c3e50;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  button {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: transform 0.2s, background 0.2s;
+    margin: 5px;
+  }
+
+  button:hover {
+    background: #2980b9;
+    transform: scale(1.05);
+  }
+
+  .button-group {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .input-area {
+    margin: 20px 0;
+    width: 100%;
+  }
+
+  #userInput {
+    width: 90%;
+    padding: 12px;
+    font-size: 1rem;
+    border: 2px solid #3498db;
+    border-radius: 8px;
+    margin: 10px 0;
+  }
+
+  .feedback {
+    font-size: 1.1rem;
+    margin: 15px 0;
+    font-weight: bold;
+    min-height: 24px;
+  }
+
+  .correct {
+    color: #27ae60;
+  }
+
+  .incorrect {
+    color: #e74c3c;
+  }
+
+  .disclaimer {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-top: 20px;
+    font-style: italic;
+  }
+
+  .score-display {
+    font-size: 1.1rem;
+    color: #34495e;
+    margin: 10px 0;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+  }
+
+  #correctScore {
+    color: #27ae60;
+    font-weight: bold;
+  }
+
+  #percentageScore {
+    color: #2980b9;
+    font-weight: bold;
+  }
+
+  .answer-display {
+    font-size: 1.1rem;
+    margin: 15px 0;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    color: #2c3e50;
+    display: none;
+  }
+
+  .answer-display.show {
+    display: block;
+  }
+
+  .pokemon-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+
+  .pokemon-modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    animation: modalPop 0.3s ease-out;
+  }
+
+  @keyframes modalPop {
+    0% {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .pokemon-image {
+    margin: 20px 0;
+    max-width: 200px;
+    height: auto;
+    animation: bounce 1s ease infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .continue-btn {
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: transform 0.2s, background 0.2s;
+    margin-top: 20px;
+  }
+
+  .continue-btn:hover {
+    background: #2980b9;
+    transform: scale(1.05);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Listening Dictation (Presentation)</h1>
+    <p class="subtitle">Finish 5 tasks correctly and earn a Pokemon!</p>
+  <div class="score-display">
+    Score: <span id="correctScore">0</span> correct / <span id="totalAttempts">0</span> attempts 
+    (<span id="percentageScore">0</span>%)
+  </div>
+  <div class="button-group">
+    <button onclick="speakSentence()">
+      <span>🔊 Read Aloud</span>
+    </button>
+  </div>
+  <div class="input-area">
+    <input type="text" 
+           id="userInput" 
+           placeholder="Type what you hear..."
+           onkeypress="if(event.key === 'Enter') checkAnswer()">
+  </div>
+  <div id="feedback" class="feedback"></div>
+  <div id="answerDisplay" class="answer-display"></div>
+  <div class="button-group">
+    <button onclick="generateSentence()">Get New Sentence</button>
+    <button onclick="checkAnswer()">Check Answer</button>
+    <button onclick="showAnswer()">Show Answer</button>
+  </div>
+  <p class="disclaimer">
+    The sentences are used to practice English listening and writing.
+  </p>
+  <p class="disclaimer" style="margin-bottom: 0; font-style: normal;">
+    Author: Aaron Shi. Released in 2025.
+  </p>
+</div>
+
+<script>
+const POKEMON_COUNT = 151; // Number of original Pokemon
+let fiveCorrectCounter = 0; // Track progress towards 5 correct answers
+const templates = [
+  "Good morning, everyone. Thank you for being here today.",
+  "Let’s begin by outlining the key objectives of today’s presentation.",
+  "I’ll start by giving you an overview of the topic, followed by some in-depth analysis.",
+  "As you can see in this chart, the data clearly shows a trend towards increased growth.",
+  "I’d like to highlight some key points before we dive into the details.",
+  "If you have any questions during the presentation, please feel free to ask.",
+  "Now, let’s take a closer look at the findings from our latest research.",
+  "I’ll be discussing three main areas in this presentation: first, the background; second, the methodology; and finally, the conclusions.",
+  "I’d like to bring your attention to the slide in front of you, which illustrates this concept.",
+  "Please take note of the implications of these results, as they will have a significant impact moving forward.",
+  "To summarize what we’ve discussed so far, here are the key takeaways.",
+  "At this point, I’ll open the floor to any questions or comments you may have.",
+  "Next, we’ll explore some case studies that exemplify the theories we’ve just discussed.",
+  "Now that we’ve reviewed the background, let’s move on to the practical applications of this information.",
+  "As we can see from this example, the data supports the theory we’ve been discussing.",
+  "I encourage you to think critically about the findings and consider how they apply to your own work.",
+  "I’m happy to provide further details on any aspect of this presentation if you’d like to explore it further.",
+  "Let’s take a moment to look at this graph, which shows a comparison over time.",
+  "I’d like to emphasize the importance of this particular point, as it is central to the discussion.",
+  "Before we conclude, let’s review the main ideas we’ve covered today.",
+  "Now, I’ll walk you through the steps of the process we used in our research.",
+  "Moving forward, we’ll focus on the potential impact of these findings in the industry.",
+  "I would like to point out that this trend is not just a short-term observation, but part of a longer-term shift.",
+  "To demonstrate this, I’ll show you a few examples that illustrate the concept in action.",
+  "This leads us to our next topic, which is how we can apply these findings to real-world scenarios.",
+  "Now, let’s examine the data more closely to understand its broader implications.",
+  "In conclusion, we can say that these results offer valuable insights into the future of the industry.",
+  "I’ll now invite my colleague to present the next section, which focuses on the practical implementation.",
+  "To put this in perspective, consider how this change will affect the industry in the coming years.",
+  "It’s important to remember that the recommendations we’ve made are based on thorough analysis and evidence.",
+  "Let’s take a step back and look at the bigger picture before diving into the finer details.",
+  "I’ll conclude this segment by summarizing the key points and outlining the next steps.",
+  "As we move forward, we’ll need to keep in mind the challenges associated with this approach.",
+  "It’s clear from the data that this is an area that requires further attention and research.",
+  "Before I finish, I’d like to leave you with one final thought on the matter.",
+  "We’ll be taking a short break now before we continue with the next segment of the presentation.",
+  "Let’s focus on the critical factors that will determine the success of this initiative.",
+  "As we conclude, I hope you’ve gained a better understanding of the topic and its relevance.",
+  "I’ll finish by sharing some resources that you can use to learn more about the subject.",
+  "Thank you for your attention. I look forward to hearing your feedback and answering any questions you may have.",
+  "In the final part of the presentation, we’ll be discussing some challenges and opportunities moving forward.",
+  "I encourage you all to consider how you can apply these insights to your own work or research.",
+  "This brings us to the end of our presentation, and I’m happy to take any questions at this point.",
+  "Let’s move on to the next slide, where I’ll outline the recommendations based on our findings.",
+  "I hope this presentation has provided you with valuable insights and practical takeaways.",
+  "Now that we’ve covered the main points, I’ll open the floor for any questions you may have.",
+  "As we look ahead, I believe the next steps will be crucial in implementing these ideas effectively.",
+  "Let’s wrap up by reviewing the key concepts once again, and then I’ll address any remaining questions.",
+  "I’ll now take you through the implications of these findings in more detail.",
+  "To conclude, I’d like to thank everyone for their time and attention throughout this presentation.",
+  "With that, I’ll pass it back to my colleague, who will take over the next section of the presentation.",
+  "Let’s dive into some of the challenges we might face when trying to implement these strategies.",
+  "To finish up, I’ll provide an overview of the next steps and how we can move forward from here."
+];
+
+let correctAnswers = 0;
+let totalAttempts = 0;
+let currentSentence = '';
+
+function generateSentence() {
+  currentSentence = templates[Math.floor(Math.random() * templates.length)];
+  
+  // Clear the input and feedback
+  document.getElementById("userInput").value = "";
+  document.getElementById("feedback").textContent = "";
+  document.getElementById("feedback").className = "feedback";
+  document.getElementById("answerDisplay").classList.remove("show");
+  
+  // Automatically speak the new sentence
+  speakSentence();
+}
+
+function speakSentence() {
+  if (!currentSentence) {
+    currentSentence = document.getElementById("sentenceDisplay").textContent;
+  }
+  
+  window.speechSynthesis.cancel();
+  
+  const utterance = new SpeechSynthesisUtterance(currentSentence);
+  
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+  
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length > 0) {
+    const englishVoice = voices.find(voice => voice.lang.startsWith('en-'));
+    if (englishVoice) {
+      utterance.voice = englishVoice;
+    }
+  }
+  
+  window.speechSynthesis.speak(utterance);
+}
+
+function checkAnswer() {
+  const userInput = document.getElementById("userInput").value.trim().toLowerCase();
+  const correctAnswer = currentSentence.toLowerCase();
+  const feedbackElement = document.getElementById("feedback");
+  
+  totalAttempts++;
+  
+  if (userInput === correctAnswer) {
+    correctAnswers++;
+    fiveCorrectCounter++;
+    feedbackElement.textContent = "🎉 Excellent! That's correct!";
+    feedbackElement.className = "feedback correct";
+    
+    if (fiveCorrectCounter === 5) {
+      const randomPokemonId = Math.floor(Math.random() * POKEMON_COUNT) + 1;
+      showPokemonReward(randomPokemonId);
+      fiveCorrectCounter = 0;
+    }
+  } else {
+    feedbackElement.textContent = "Keep trying! Listen again and type what you hear.";
+    feedbackElement.className = "feedback incorrect";
+  }
+  
+  document.getElementById("correctScore").textContent = correctAnswers;
+  document.getElementById("totalAttempts").textContent = totalAttempts;
+  document.getElementById("percentageScore").textContent = 
+    Math.round((correctAnswers / totalAttempts) * 100);
+}
+
+function showAnswer() {
+  const answerDisplay = document.getElementById("answerDisplay");
+  answerDisplay.textContent = currentSentence;
+  answerDisplay.classList.add("show");
+  
+  setTimeout(() => {
+    answerDisplay.classList.remove("show");
+  }, 5000);
+}
+
+function showPokemonReward(pokemonId) {
+  const modal = document.createElement('div');
+  modal.className = 'pokemon-modal';
+  modal.innerHTML = `
+    <div class="pokemon-modal-content">
+      <h2>Congratulations! 🎉</h2>
+      <p>You've successfully finished five listening dictation tasks. You've won this Pokemon!</p>
+      <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png" 
+           alt="Pokemon reward" 
+           class="pokemon-image"
+           width="200" 
+           height="200">
+      <button onclick="closePokemonModal()" class="continue-btn">Continue Practicing</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+function closePokemonModal() {
+  const modal = document.querySelector('.pokemon-modal');
+  if (modal) {
+    modal.remove();
+    generateSentence();
+  }
+}
+
+speechSynthesis.onvoiceschanged = function() {
+  window.speechSynthesis.getVoices();
+};
+
+window.onload = generateSentence;
+</script>
+</body></html>
