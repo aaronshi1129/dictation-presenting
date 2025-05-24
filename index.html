@@ -46,9 +46,15 @@
     margin: 5px;
   }
 
-  button:hover {
+  button:hover:not(:disabled) {
     background: #2980b9;
     transform: scale(1.05);
+  }
+
+  button:disabled {
+    background: #bdc3c7;
+    cursor: not-allowed;
+    transform: none;
   }
 
   .button-group {
@@ -70,6 +76,12 @@
     border: 2px solid #3498db;
     border-radius: 8px;
     margin: 10px 0;
+  }
+
+  #userInput:disabled {
+    background-color: #f8f9fa;
+    border-color: #bdc3c7;
+    cursor: not-allowed;
   }
 
   .feedback {
@@ -240,7 +252,7 @@
   <div id="answerDisplay" class="answer-display"></div>
   <div class="button-group">
     <button onclick="generateSentence()">Get New Sentence</button>
-    <button onclick="checkAnswer()">Check Answer</button>
+    <button id="checkBtn" onclick="checkAnswer()">Check Answer</button>
     <button onclick="showAnswer()">Show Answer</button>
   </div>
   <p class="disclaimer">
@@ -255,6 +267,7 @@
 <script>
 const POKEMON_COUNT = 151; // Number of original Pokemon
 let fiveCorrectCounter = 0; // Track progress towards 5 correct answers
+let hasAnsweredCorrectly = false; // Track if current sentence was answered correctly
 const templates = [
   "Good morning, everyone. Thank you for being here today.",
   "Let's begin by outlining the key objectives of today's presentation.",
@@ -317,12 +330,19 @@ let currentSentence = '';
 
 function generateSentence() {
   currentSentence = templates[Math.floor(Math.random() * templates.length)];
+  hasAnsweredCorrectly = false; // Reset for new sentence
   
   // Clear the input and feedback
   document.getElementById("userInput").value = "";
+  document.getElementById("userInput").disabled = false; // Re-enable input
   document.getElementById("feedback").textContent = "";
   document.getElementById("feedback").className = "feedback";
   document.getElementById("answerDisplay").classList.remove("show");
+  
+  // Re-enable the check button
+  const checkBtn = document.getElementById("checkBtn");
+  checkBtn.disabled = false;
+  checkBtn.textContent = "Check Answer";
   
   // Automatically speak the new sentence
   speakSentence();
@@ -353,17 +373,30 @@ function speakSentence() {
 }
 
 function checkAnswer() {
+  // Prevent checking if already answered correctly
+  if (hasAnsweredCorrectly) {
+    return;
+  }
+  
   const userInput = document.getElementById("userInput").value.trim().toLowerCase();
   const correctAnswer = currentSentence.toLowerCase();
   const feedbackElement = document.getElementById("feedback");
+  const checkBtn = document.getElementById("checkBtn");
   
   totalAttempts++;
   
   if (userInput === correctAnswer) {
     correctAnswers++;
     fiveCorrectCounter++;
+    hasAnsweredCorrectly = true; // Mark as correctly answered
+    
     feedbackElement.textContent = "🎉 Excellent! That's correct!";
     feedbackElement.className = "feedback correct";
+    
+    // Disable the check button and input after correct answer
+    checkBtn.disabled = true;
+    checkBtn.textContent = "✓ Correct!";
+    document.getElementById("userInput").disabled = true;
     
     if (fiveCorrectCounter === 5) {
       const randomPokemonId = Math.floor(Math.random() * POKEMON_COUNT) + 1;
