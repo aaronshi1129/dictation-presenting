@@ -215,9 +215,34 @@
     transition: color 0.3s ease; 
 }
 
-.disclaimer a:hover {
+  .disclaimer a:hover {
     color: blue; 
 }
+
+  /* Disable text selection */
+  * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  /* Allow text selection only in input field */
+  #userInput {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+
+  /* Prevent drag and drop */
+  * {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+  }
 </style>
 </head>
 <!-- Google tag (gtag.js) -->
@@ -259,8 +284,8 @@
     The sentences are used to practice English listening and writing.
   </p>
   <p class="disclaimer" style="margin-bottom: 0; font-style: normal;">
-    <a href="https://www.aaronshi.cc" target="_blank" rel="noopener noreferrer">Go to AaronShi.cc </a>
-    |<a href="https://app.aaronshi.cc" target="_blank" rel="noopener noreferrer"> Back to AaronShi.cc App</a>
+    <a href="https://www.aaronshi.cc" target="_blank" rel="noopener noreferrer">Go to AaronShi.cc</a>
+    |<a href="https://app.aaronshi.cc" target="_blank" rel="noopener noreferrer">Back to AaronShi.cc App</a>
   </p>
 </div>
 
@@ -453,6 +478,96 @@ function closePokemonModal() {
 speechSynthesis.onvoiceschanged = function() {
   window.speechSynthesis.getVoices();
 };
+
+// Disable right-click context menu
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+  return false;
+});
+
+// Disable text selection with mouse
+document.addEventListener('selectstart', function(e) {
+  // Allow selection only in input field
+  if (e.target.id !== 'userInput') {
+    e.preventDefault();
+    return false;
+  }
+});
+
+// Disable drag start
+document.addEventListener('dragstart', function(e) {
+  e.preventDefault();
+  return false;
+});
+
+// Comprehensive keyboard shortcut blocking
+document.addEventListener('keydown', function(e) {
+  // Disable F12 (Developer Tools)
+  if (e.key === 'F12') {
+    e.preventDefault();
+    return false;
+  }
+  
+  // Disable Ctrl+Shift+I (Developer Tools)
+  if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+    e.preventDefault();
+    return false;
+  }
+  
+  // Disable Ctrl+U (View Source)
+  if (e.ctrlKey && e.key === 'u') {
+    e.preventDefault();
+    return false;
+  }
+  
+  // Disable Ctrl+Shift+C (Inspect Element)
+  if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+    e.preventDefault();
+    return false;
+  }
+  
+  // Disable Ctrl+Shift+J (Console)
+  if (e.ctrlKey && e.shiftKey && e.key === 'J') {
+    e.preventDefault();
+    return false;
+  }
+  
+  // Disable Ctrl+A (Select All) except in input field
+  if (e.ctrlKey && e.key === 'a' && e.target.id !== 'userInput') {
+    e.preventDefault();
+    return false;
+  }
+  
+  // Disable Ctrl+C (Copy) except in input field
+  if (e.ctrlKey && e.key === 'c' && e.target.id !== 'userInput') {
+    e.preventDefault();
+    return false;
+  }
+  
+  // Disable Ctrl+X (Cut) except in input field
+  if (e.ctrlKey && e.key === 'x' && e.target.id !== 'userInput') {
+    e.preventDefault();
+    return false;
+  }
+  
+  // Disable Ctrl+V (Paste) except in input field
+  if (e.ctrlKey && e.key === 'v' && e.target.id !== 'userInput') {
+    e.preventDefault();
+    return false;
+  }
+  
+  // Disable Ctrl+S (Save)
+  if (e.ctrlKey && e.key === 's') {
+    e.preventDefault();
+    return false;
+  }
+  
+  // Disable Ctrl+P (Print)
+  if (e.ctrlKey && e.key === 'p') {
+    e.preventDefault();
+    return false;
+  }
+});
 
 window.onload = generateSentence;
 </script>
